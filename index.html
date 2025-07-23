@@ -158,40 +158,50 @@
         .append("path")
         .attr("d", "M 0 0 L 10 5 L 0 10 z")
         .attr("fill", "#d22");
-      // Draw all bidirectional edges (one in each direction, no duplicates)
+      // Draw all bidirectional edges (one in each direction, as parallel arrows)
       let drawn = new Set();
+      const offset = 12; // pixels to offset parallel arrows
       edges.forEach(e => {
         const key = `${Math.min(e.source, e.target)}-${Math.max(e.source, e.target)}`;
         if (!drawn.has(key)) {
-          // Draw both directions
+          const src = nodePos[e.source];
+          const tgt = nodePos[e.target];
+          const dx = tgt.x - src.x;
+          const dy = tgt.y - src.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          const perpX = -dy / len * offset;
+          const perpY = dx / len * offset;
+          // Arrow from source to target (offset one way)
           svg.append("line")
             .attr("class", "edge")
-            .attr("x1", nodePos[e.source].x)
-            .attr("y1", nodePos[e.source].y)
-            .attr("x2", nodePos[e.target].x)
-            .attr("y2", nodePos[e.target].y)
+            .attr("x1", src.x + perpX)
+            .attr("y1", src.y + perpY)
+            .attr("x2", tgt.x + perpX)
+            .attr("y2", tgt.y + perpY)
             .attr("stroke", "#888")
             .attr("stroke-width", 2)
             .attr("marker-end", "url(#arrowhead)");
+          // Arrow from target to source (offset the other way)
           svg.append("line")
             .attr("class", "edge")
-            .attr("x1", nodePos[e.target].x)
-            .attr("y1", nodePos[e.target].y)
-            .attr("x2", nodePos[e.source].x)
-            .attr("y2", nodePos[e.source].y)
+            .attr("x1", tgt.x - perpX)
+            .attr("y1", tgt.y - perpY)
+            .attr("x2", src.x - perpX)
+            .attr("y2", src.y - perpY)
             .attr("stroke", "#888")
             .attr("stroke-width", 2)
             .attr("marker-end", "url(#arrowhead)");
           drawn.add(key);
         }
       });
-      // Draw leaks as red arrows from node outward
+      // Draw leaks as red arrows from node outward (offset from main angle)
       leaks.forEach(id => {
         const pos = nodePos[id];
-        const angle = Math.atan2(pos.y - height / 2, pos.x - width / 2);
-        const leakLen = 50;
-        const x2 = pos.x + leakLen * Math.cos(angle);
-        const y2 = pos.y + leakLen * Math.sin(angle);
+        const mainAngle = Math.atan2(pos.y - height / 2, pos.x - width / 2);
+        const leakAngle = mainAngle + Math.PI / 2; // 90° offset
+        const leakLen = 80;
+        const x2 = pos.x + leakLen * Math.cos(leakAngle);
+        const y2 = pos.y + leakLen * Math.sin(leakAngle);
         svg.append("line")
           .attr("class", "leak-edge")
           .attr("x1", pos.x)
@@ -202,10 +212,11 @@
           .attr("stroke-width", 3)
           .attr("marker-end", "url(#leak-arrow)");
       });
-      // Draw input arrow with 'in' at butt
+      // Draw input arrow with 'in' at butt (offset from main angle)
       const inPos = nodePos[inputNode];
-      const inAngle = Math.atan2(inPos.y - height / 2, inPos.x - width / 2);
-      const inLen = 50;
+      const mainInAngle = Math.atan2(inPos.y - height / 2, inPos.x - width / 2);
+      const inAngle = mainInAngle - Math.PI / 6; // -30° offset
+      const inLen = 80;
       const x1_in = inPos.x - inLen * Math.cos(inAngle);
       const y1_in = inPos.y - inLen * Math.sin(inAngle);
       svg.append("line")
@@ -225,10 +236,11 @@
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
         .text("in");
-      // Draw output as a line with a small circle at the end
+      // Draw output as a line with a small circle at the end (offset from main angle)
       const outPos = nodePos[outputNode];
-      const outAngle = Math.atan2(outPos.y - height / 2, outPos.x - width / 2);
-      const outLen = 50;
+      const mainOutAngle = Math.atan2(outPos.y - height / 2, outPos.x - width / 2);
+      const outAngle = mainOutAngle + Math.PI / 6; // +30° offset
+      const outLen = 80;
       const x2_out = outPos.x + outLen * Math.cos(outAngle);
       const y2_out = outPos.y + outLen * Math.sin(outAngle);
       svg.append("line")
