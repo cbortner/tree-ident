@@ -257,12 +257,12 @@
       const inputOffset = -Math.PI / 18; // -10° in radians
       const inputAngle = angleToNode + inputOffset;
       const nodeRadius = 28;
-      const arrowLen = 80;
-      // Input arrow: from outside toward node edge
-      const x1_in = inPos.x - (nodeRadius + arrowLen) * Math.cos(inputAngle);
-      const y1_in = inPos.y - (nodeRadius + arrowLen) * Math.sin(inputAngle);
-      const x2_in = inPos.x - nodeRadius * Math.cos(inputAngle);
-      const y2_in = inPos.y - nodeRadius * Math.sin(inputAngle);
+      const arrowLen = 60; // same for input and output
+      // Input arrow: from outside toward node edge (start further from center, end at node edge)
+      const x1_in = inPos.x + (nodeRadius + arrowLen) * Math.cos(inputAngle);
+      const y1_in = inPos.y + (nodeRadius + arrowLen) * Math.sin(inputAngle);
+      const x2_in = inPos.x + nodeRadius * Math.cos(inputAngle);
+      const y2_in = inPos.y + nodeRadius * Math.sin(inputAngle);
       svg.append("line")
         .attr("x1", x1_in)
         .attr("y1", y1_in)
@@ -272,8 +272,8 @@
         .attr("stroke-width", 2.2)
         .attr("marker-end", "url(#input-arrow)");
       svg.append("text")
-        .attr("x", x1_in - 18 * Math.cos(inputAngle))
-        .attr("y", y1_in - 18 * Math.sin(inputAngle))
+        .attr("x", x1_in + 16 * Math.cos(inputAngle))
+        .attr("y", y1_in + 16 * Math.sin(inputAngle))
         .attr("fill", "green")
         .attr("font-size", 16)
         .attr("font-weight", "bold")
@@ -285,11 +285,10 @@
       const angleToOutNode = Math.atan2(outPos.y - centerY, outPos.x - centerX);
       const outputOffset = Math.PI / 18; // +10° in radians
       const outputAngle = angleToOutNode + outputOffset;
-      const outArrowLen = 60; // shorter than input
       const x1_out = outPos.x + nodeRadius * Math.cos(outputAngle);
       const y1_out = outPos.y + nodeRadius * Math.sin(outputAngle);
-      const x2_out = x1_out + outArrowLen * Math.cos(outputAngle);
-      const y2_out = y1_out + outArrowLen * Math.sin(outputAngle);
+      const x2_out = x1_out + arrowLen * Math.cos(outputAngle);
+      const y2_out = y1_out + arrowLen * Math.sin(outputAngle);
       svg.append("line")
         .attr("x1", x1_out)
         .attr("y1", y1_out)
