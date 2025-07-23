@@ -249,16 +249,17 @@
           .attr("stroke-width", 3)
           .attr("marker-end", "url(#leak-arrow)");
       });
-      // Draw input arrow with 'in' coming from outside the model at a fixed angle (-110°)
+      // Draw input arrow with 'in' going 10° counterclockwise from the center-to-node line
       const inPos = nodePos[inputNode];
       const centerX = width / 2;
       const centerY = height / 2;
       const angleToNode = Math.atan2(inPos.y - centerY, inPos.x - centerX);
-      const inputAngle = angleToNode - Math.PI / 9; // -20° from the direction to the node
+      const inputOffset = -Math.PI / 18; // -10° in radians
+      const inputAngle = angleToNode + inputOffset;
       const nodeRadius = 28;
       const inLen = radius + 60;
-      const x1_in = centerX + inLen * Math.cos(inputAngle);
-      const y1_in = centerY + inLen * Math.sin(inputAngle);
+      const x1_in = centerX + (radius + 60) * Math.cos(inputAngle);
+      const y1_in = centerY + (radius + 60) * Math.sin(inputAngle);
       const x2_in = inPos.x - nodeRadius * Math.cos(inputAngle);
       const y2_in = inPos.y - nodeRadius * Math.sin(inputAngle);
       svg.append("line")
@@ -278,10 +279,11 @@
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
         .text("in");
-      // Draw output as a line with a small circle at the end, coming from outside at a different angle (-70°)
+      // Draw output as a line with a small circle at the end, going 10° clockwise from the center-to-node line
       const outPos = nodePos[outputNode];
       const angleToOutNode = Math.atan2(outPos.y - centerY, outPos.x - centerX);
-      const outputAngle = angleToOutNode + Math.PI / 9; // +20° from the direction to the node
+      const outputOffset = Math.PI / 18; // +10° in radians
+      const outputAngle = angleToOutNode + outputOffset;
       const outLen = radius + 60;
       const x1_out = outPos.x + nodeRadius * Math.cos(outputAngle);
       const y1_out = outPos.y + nodeRadius * Math.sin(outputAngle);
