@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Skeletal Path Model v2</title>
+  <title>Linear Compartmental Tree Model</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
@@ -28,7 +28,7 @@
       height: auto;
       max-width: 700px;
       min-width: 280px;
-      aspect-ratio: 7/3;
+      aspect-ratio: 7/6;
     }
     .node circle {
       fill: lightblue;
@@ -79,7 +79,7 @@
     <div><button id="move-output">Move Output</button> <span>Output at: <select id="output-node"></select></span></div>
   </div>
   <div style="width: 100%; overflow-x: auto; display: flex; justify-content: center;">
-    <svg id="graph" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid meet"></svg>
+    <svg id="graph" viewBox="0 0 700 600" preserveAspectRatio="xMidYMid meet"></svg>
   </div>
   <div class="status-box" id="status"></div>
   <script>
@@ -151,7 +151,7 @@
       svg.selectAll("*").remove();
       // Always use viewBox dimensions for layout
       const width = 700;
-      const height = 300;
+      const height = 600;
       const n = nodes.length;
       // Arrange nodes in a circle, radius scales with SVG size
       const radius = Math.min(width, height) * 0.36;
@@ -166,6 +166,7 @@
       // Draw all bidirectional edges (one in each direction, as parallel arrows)
       let drawn = new Set();
       const offset = 12; // pixels to offset parallel arrows
+      const edgeInset = 38; // how far from node center to start/end edge arrows (shorter than node-to-node)
       edges.forEach(e => {
         const key = `${Math.min(e.source, e.target)}-${Math.max(e.source, e.target)}`;
         if (!drawn.has(key)) {
@@ -176,23 +177,23 @@
           const len = Math.sqrt(dx * dx + dy * dy);
           const perpX = -dy / len * offset;
           const perpY = dx / len * offset;
-          // Arrow from source to target (offset one way)
+          // Arrow from source to target (offset one way, and inset from node centers)
           svg.append("line")
             .attr("class", "edge")
-            .attr("x1", src.x + perpX)
-            .attr("y1", src.y + perpY)
-            .attr("x2", tgt.x + perpX)
-            .attr("y2", tgt.y + perpY)
+            .attr("x1", src.x + perpX + edgeInset * dx / len)
+            .attr("y1", src.y + perpY + edgeInset * dy / len)
+            .attr("x2", tgt.x + perpX - edgeInset * dx / len)
+            .attr("y2", tgt.y + perpY - edgeInset * dy / len)
             .attr("stroke", "#888")
             .attr("stroke-width", 2)
             .attr("marker-end", "url(#arrowhead)");
-          // Arrow from target to source (offset the other way)
+          // Arrow from target to source (offset the other way, and inset from node centers)
           svg.append("line")
             .attr("class", "edge")
-            .attr("x1", tgt.x - perpX)
-            .attr("y1", tgt.y - perpY)
-            .attr("x2", src.x - perpX)
-            .attr("y2", src.y - perpY)
+            .attr("x1", tgt.x - perpX + edgeInset * -dx / len)
+            .attr("y1", tgt.y - perpY + edgeInset * -dy / len)
+            .attr("x2", src.x - perpX - edgeInset * -dx / len)
+            .attr("y2", src.y - perpY - edgeInset * -dy / len)
             .attr("stroke", "#888")
             .attr("stroke-width", 2)
             .attr("marker-end", "url(#arrowhead)");
@@ -204,13 +205,16 @@
         const pos = nodePos[id];
         const mainAngle = Math.atan2(pos.y - height / 2, pos.x - width / 2);
         const leakAngle = mainAngle + Math.PI / 2; // 90° offset
-        const leakLen = 80;
+        const nodeRadius = 28;
+        const leakLen = 100;
+        const x1 = pos.x + nodeRadius * Math.cos(leakAngle);
+        const y1 = pos.y + nodeRadius * Math.sin(leakAngle);
         const x2 = pos.x + leakLen * Math.cos(leakAngle);
         const y2 = pos.y + leakLen * Math.sin(leakAngle);
         svg.append("line")
           .attr("class", "leak-edge")
-          .attr("x1", pos.x)
-          .attr("y1", pos.y)
+          .attr("x1", x1)
+          .attr("y1", y1)
           .attr("x2", x2)
           .attr("y2", y2)
           .attr("stroke", "#d22")
@@ -221,14 +225,17 @@
       const inPos = nodePos[inputNode];
       const mainInAngle = Math.atan2(inPos.y - height / 2, inPos.x - width / 2);
       const inAngle = mainInAngle - Math.PI / 6; // -30° offset
-      const inLen = 80;
+      const nodeRadius = 28;
+      const inLen = 100;
       const x1_in = inPos.x - inLen * Math.cos(inAngle);
       const y1_in = inPos.y - inLen * Math.sin(inAngle);
+      const x2_in = inPos.x - nodeRadius * Math.cos(inAngle);
+      const y2_in = inPos.y - nodeRadius * Math.sin(inAngle);
       svg.append("line")
         .attr("x1", x1_in)
         .attr("y1", y1_in)
-        .attr("x2", inPos.x - 28 * Math.cos(inAngle))
-        .attr("y2", inPos.y - 28 * Math.sin(inAngle))
+        .attr("x2", x2_in)
+        .attr("y2", y2_in)
         .attr("stroke", "green")
         .attr("stroke-width", 3)
         .attr("marker-end", "url(#arrowhead)");
