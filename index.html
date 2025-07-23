@@ -245,15 +245,18 @@
           .attr("stroke-width", 3)
           .attr("marker-end", "url(#leak-arrow)");
       });
-      // Draw input arrow with 'in' at top of input node (angle -90°)
+      // Draw input arrow with 'in' coming from outside the model at a fixed angle (-110°)
       const inPos = nodePos[inputNode];
-      const inAngle = -Math.PI / 2; // always straight up
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const angleToNode = Math.atan2(inPos.y - centerY, inPos.x - centerX);
+      const inputAngle = angleToNode - Math.PI / 9; // -20° from the direction to the node
       const nodeRadius = 28;
-      const inLen = 100;
-      const x1_in = inPos.x;
-      const y1_in = inPos.y - inLen;
-      const x2_in = inPos.x;
-      const y2_in = inPos.y - nodeRadius;
+      const inLen = radius + 60;
+      const x1_in = centerX + inLen * Math.cos(inputAngle);
+      const y1_in = centerY + inLen * Math.sin(inputAngle);
+      const x2_in = inPos.x - nodeRadius * Math.cos(inputAngle);
+      const y2_in = inPos.y - nodeRadius * Math.sin(inputAngle);
       svg.append("line")
         .attr("x1", x1_in)
         .attr("y1", y1_in)
@@ -263,24 +266,26 @@
         .attr("stroke-width", 3)
         .attr("marker-end", "url(#input-arrow)");
       svg.append("text")
-        .attr("x", x1_in)
-        .attr("y", y1_in - 16)
+        .attr("x", x1_in - 16 * Math.cos(inputAngle))
+        .attr("y", y1_in - 16 * Math.sin(inputAngle))
         .attr("fill", "green")
         .attr("font-size", 16)
         .attr("font-weight", "bold")
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
         .text("in");
-      // Draw output as a line with a small circle at the end (offset from main angle)
+      // Draw output as a line with a small circle at the end, coming from outside at a different angle (-70°)
       const outPos = nodePos[outputNode];
-      const mainOutAngle = Math.atan2(outPos.y - height / 2, outPos.x - width / 2);
-      const outAngle = mainOutAngle + Math.PI / 6; // +30° offset
-      const outLen = 80;
-      const x2_out = outPos.x + outLen * Math.cos(outAngle);
-      const y2_out = outPos.y + outLen * Math.sin(outAngle);
+      const angleToOutNode = Math.atan2(outPos.y - centerY, outPos.x - centerX);
+      const outputAngle = angleToOutNode + Math.PI / 9; // +20° from the direction to the node
+      const outLen = radius + 60;
+      const x1_out = outPos.x + nodeRadius * Math.cos(outputAngle);
+      const y1_out = outPos.y + nodeRadius * Math.sin(outputAngle);
+      const x2_out = centerX + outLen * Math.cos(outputAngle);
+      const y2_out = centerY + outLen * Math.sin(outputAngle);
       svg.append("line")
-        .attr("x1", outPos.x + 28 * Math.cos(outAngle))
-        .attr("y1", outPos.y + 28 * Math.sin(outAngle))
+        .attr("x1", x1_out)
+        .attr("y1", y1_out)
         .attr("x2", x2_out)
         .attr("y2", y2_out)
         .attr("stroke", "purple")
