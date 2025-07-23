@@ -234,11 +234,11 @@
         const mainAngle = Math.atan2(pos.y - height / 2, pos.x - width / 2);
         const leakAngle = mainAngle + Math.PI / 2; // 90° offset
         const nodeRadius = 28;
-        const leakLen = 100;
+        const leakLen = 60;
         const x1 = pos.x + nodeRadius * Math.cos(leakAngle);
         const y1 = pos.y + nodeRadius * Math.sin(leakAngle);
-        const x2 = pos.x + leakLen * Math.cos(leakAngle);
-        const y2 = pos.y + leakLen * Math.sin(leakAngle);
+        const x2 = pos.x + (nodeRadius + leakLen) * Math.cos(leakAngle);
+        const y2 = pos.y + (nodeRadius + leakLen) * Math.sin(leakAngle);
         svg.append("line")
           .attr("class", "leak-edge")
           .attr("x1", x1)
