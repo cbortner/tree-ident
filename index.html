@@ -75,6 +75,7 @@
   <div class="controls">
     <div><button id="add-compartment">Add Compartment</button> <span>Attach to: <select id="attach-to"></select></span></div>
     <div><button id="add-leak">Add Leak</button> <span>Leak at: <select id="leak-node"></select></span></div>
+    <div><button id="remove-leak">Remove Leak</button> <span>Remove from: <select id="remove-leak-node"></select></span></div>
     <div><button id="move-input">Move Input</button> <span>Input at: <select id="input-node"></select></span></div>
     <div><button id="move-output">Move Output</button> <span>Output at: <select id="output-node"></select></span></div>
   </div>
@@ -101,6 +102,7 @@
     const svg = d3.select("#graph");
     const attachToSelect = document.getElementById("attach-to");
     const leakNodeSelect = document.getElementById("leak-node");
+    const removeLeakNodeSelect = document.getElementById("remove-leak-node");
     const inputNodeSelect = document.getElementById("input-node");
     const outputNodeSelect = document.getElementById("output-node");
     const statusDiv = document.getElementById("status");
@@ -116,6 +118,17 @@
           opt.textContent = n.label;
           sel.appendChild(opt);
         });
+      });
+      // For remove leak, only show nodes that currently have a leak
+      removeLeakNodeSelect.innerHTML = "";
+      leaks.forEach(id => {
+        const node = nodes.find(n => n.id === id);
+        if (node) {
+          const opt = document.createElement("option");
+          opt.value = node.id;
+          opt.textContent = node.label;
+          removeLeakNodeSelect.appendChild(opt);
+        }
       });
       attachToSelect.value = nodes[0].id;
       leakNodeSelect.value = nodes[0].id;
@@ -347,6 +360,14 @@
       if (!leaks.includes(leakAt)) leaks.push(leakAt);
       drawGraph();
       updateStatus();
+    };
+    document.getElementById("remove-leak").onclick = () => {
+      const removeId = +removeLeakNodeSelect.value;
+      const idx = leaks.indexOf(removeId);
+      if (idx !== -1) leaks.splice(idx, 1);
+      drawGraph();
+      updateStatus();
+      updateSelectOptions();
     };
     document.getElementById("move-input").onclick = () => {
       inputNode = +inputNodeSelect.value;
