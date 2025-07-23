@@ -28,7 +28,7 @@
       height: auto;
       max-width: 700px;
       min-width: 280px;
-      aspect-ratio: 7/6;
+      aspect-ratio: 700/720;
     }
     .node circle {
       fill: lightblue;
@@ -80,7 +80,7 @@
     <div><button id="move-output">Move Output</button> <span>Output at: <select id="output-node"></select></span></div>
   </div>
   <div style="width: 100%; overflow-x: auto; display: flex; justify-content: center;">
-    <svg id="graph" viewBox="0 0 700 600" preserveAspectRatio="xMidYMid meet"></svg>
+    <svg id="graph" viewBox="0 0 700 720" preserveAspectRatio="xMidYMid meet"></svg>
   </div>
   <div class="status-box" id="status"></div>
   <script>
@@ -175,7 +175,7 @@
         .attr("fill", "green");
       // Always use viewBox dimensions for layout
       const width = 700;
-      const height = 600;
+      const height = 720;
       const n = nodes.length;
       // Arrange nodes in a circle, radius scales with SVG size
       const radius = Math.min(width, height) * 0.36;
@@ -359,6 +359,7 @@
       if (!leaks.includes(leakAt)) leaks.push(leakAt);
       drawGraph();
       updateStatus();
+      updateSelectOptions();
     };
     document.getElementById("remove-leak").onclick = () => {
       const removeId = +removeLeakNodeSelect.value;
